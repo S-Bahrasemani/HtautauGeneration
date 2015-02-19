@@ -23,6 +23,8 @@ model = get_model()
 outtree = Tree(name='Tree', model=model)
 outtree.define_object(name='tau1', prefix='tau1_')
 outtree.define_object(name='tau2', prefix='tau2_')
+outtree.define_object(name='jet1', prefix='jet1_')
+outtree.define_object(name='jet2', prefix='jet2_')
 outtree.define_object(name='higgs', prefix='higgs_')
 outtree.define_object(name='met', prefix='met_')
 
@@ -77,6 +79,10 @@ for event in chain:
     FourMomentum.set(outtree.higgs, event.higgs[0])
     outtree.Fill(reset=-1)
     
+    jets = list(event.jets)
+    if len(jets) >= 2:
+        jet1, jet2 = jets[:2]
+        TrueJetBlock.set(outtree, jet1, jet2)
 
 output.cd()
 outtree.FlushBaskets()

@@ -135,7 +135,7 @@ class TrueTauBlock(TrueTau.prefix('tau1_') + TrueTau.prefix('tau2_') + TrueMet.p
         tree.dPhi_tau2_met = abs(vis_tau2.DeltaPhi(MET))
         
         tree.pt_sum_taus_met = (vis_taus + MET).Pt()
-        tree.pt_tot_taus_met = ( tlv_tau1 + tlv_lep2 + tlv_met ).Pt() / ( lep1_pt + lep2_pt + met_et ) # TO BE SET
+        tree.pt_tot_taus_met = 0 #( tlv_tau1 + tlv_lep2 + tlv_met ).Pt() / ( lep1_pt + lep2_pt + met_et ) # TO BE SET
 
         tree.pt_sum_tau1_tau2 = vis_taus.Pt()
         tree.pt_tot_tau1_tau2 = 0 # TO BE SET
@@ -151,6 +151,31 @@ class TrueTauBlock(TrueTau.prefix('tau1_') + TrueTau.prefix('tau2_') + TrueMet.p
             tree.pt_ratio_tau1_tau2 = 0
 
 
+
+class TrueJet(FourMomentum):
+    index = IntCol()
+
+
+
+class TrueJetBlock(TrueJet.prefix('jet1_') + TrueJet.prefix('jet2_')):
+    
+    dEta_jet1_jet2 = FloatCol()
+    mass_je1_jet2 = FloatCol()
+    sum_PT_jet1_jet2_vistau1_vistau2_ETmiss = FloatCol()
+    
+    product_jet1_eta_jet2_eta = FloatCol()
+    
+    @classmethod 
+    def set(cls, tree, jet1, jet2):
+        if jet1 is not None:
+            tree.jet1.index = jet1.index
+            FourMomentum.set(tree.jet1, jet1)
+        if jet2 is not None:
+            tree.jet2.index = jet2.index
+            FourMomentum.set(tree.jet2, jet2)
+            tree.dEta_jet1_jet2 = abs(jet1.eta - jet2.eta)
+        
+
 def get_model():
-    model = EventModel + TrueTauBlock + FourMomentum.prefix('higgs_')
+    model = EventModel + TrueTauBlock + FourMomentum.prefix('higgs_') + TrueJetBlock
     return model

@@ -25,5 +25,6 @@ def define_objects(tree):
     tree.define_collection(
         name="jets",
         prefix="jet_AntiKt4TruthJets_",
-        size="jet_AntiKt4TruthJets_n")
+        size="jet_AntiKt4TruthJets_n",
+        mix=FourMomentum)
     
