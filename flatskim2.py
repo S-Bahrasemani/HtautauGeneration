@@ -74,7 +74,6 @@ for event in chain:
     # Set variables describing the two taus 
     # and the ditau system
     tau1, tau2 = event.taus
-    TrueTauBlock.set(outtree, tau1, tau2)
 
     FourMomentum.set(outtree.higgs, event.higgs[0])
     outtree.Fill(reset=-1)
@@ -82,7 +81,10 @@ for event in chain:
     jets = list(event.jets)
     if len(jets) >= 2:
         jet1, jet2 = jets[:2]
+        TrueTauBlock.set(outtree, tau1, tau2, jet1, jet2)
         TrueJetBlock.set(outtree, jet1, jet2)
+    else:
+        TrueTauBlock.set(outtree, tau1, tau2)
 
 output.cd()
 outtree.FlushBaskets()
