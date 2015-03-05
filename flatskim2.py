@@ -25,8 +25,8 @@ outtree.define_object(name='tau1', prefix='tau1_')
 outtree.define_object(name='tau2', prefix='tau2_')
 outtree.define_object(name='jet1', prefix='jet1_')
 outtree.define_object(name='jet2', prefix='jet2_')
-outtree.define_object(name='higgs', prefix='higgs_')
-outtree.define_object(name='met', prefix='met_')
+outtree.define_object(name='higgs', prefix='resonance_')
+outtree.define_object(name='met', prefix='MET_')
 
 log.info(model)
 def mc_weight_count(event):
@@ -68,24 +68,48 @@ for event in chain:
     outtree.evtnumber = event.EventNumber
     outtree.weight = event.mc_event_weight
     # sort taus and jets in decreasing order by pT
-    event.taus.sort(key=lambda tau: tau.pt, reverse=True)
+    event.taus.sort(key=lambda tau: tau.decay.fourvect_vis.Pt(), reverse=True)
     event.jets.sort(key=lambda jet: jet.pt, reverse=True)
 
     # Set variables describing the two taus 
     # and the ditau system
     tau1, tau2 = event.taus
-
     FourMomentum.set(outtree.higgs, event.higgs[0])
     outtree.Fill(reset=-1)
-    
+   
+    # MET = tau1.decay.fourvect_missing + tau2.decay.fourvect_missing
     jets = list(event.jets)
-    if len(jets) >= 2:
+    outtree.numJets= len(jets)
+    if len(jets) >=2:
         jet1, jet2 = jets[:2]
         TrueTauBlock.set(outtree, tau1, tau2, jet1, jet2)
         TrueJetBlock.set(outtree, jet1, jet2)
+        
+        jet1 = jets[0]
+        TrueTauBlock.set(outtree, tau1, tau2, jet1)
+        TrueJetBlock.set(outtree, jet1, jet2)
+
+    elif len(jets) == 1:
+        jet1 = jets[0]
+        TrueTauBlock.set(outtree, tau1, tau2, jet1)
+        TrueJetBlock.set(outtree, jet1, None)
+    
     else:
         TrueTauBlock.set(outtree, tau1, tau2)
 
+    outtree.sum_pt_full = sum(
+        [outtree.tau1.pt, outtree.tau2.pt] + 
+        [jet.pt for jet in jets])
+    
+
+            # vector sum pT with all selected jets and MET
+    outtree.vector_sum_pt_full = sum(
+        [tau1.fourvect, tau2.fourvect] +
+        [jet.fourvect for jet in jets] + [tau1.decay.fourvect_missing + tau2.decay.fourvect_missing]).Pt()
+
+
+
+    outtree.true_resonance_pt = outtree.higgs.pt
 output.cd()
 outtree.FlushBaskets()
 outtree.Write()

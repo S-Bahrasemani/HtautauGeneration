@@ -35,7 +35,8 @@ class TrueJets(EventFilter):
         event.jets.select(lambda jet: jet.pt >= 25 * GeV and \
                               not any([tau for tau in event.taus if
                                        utils.dR(jet.eta, jet.phi,
-                                                tau.eta, tau.phi) < 0.4]))
+                                                tau.decay.fourvect_vis.Eta(), 
+                                                tau.decay.fourvect_vis.Phi()) < 0.4]))
         return True
 
 
